@@ -5,10 +5,21 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Header from './Header';
 import './main.css';
+import CharacterEntry from './CharacterEntry';
+
+const testCharacter = {
+    characterKey: 1,
+    name: 'Test-o',
+    init: 99,
+    hp: 50,
+    ac: 18,
+    notes: 'This is a test note'
+};
 
 ReactDOM.render(
   <React.StrictMode>
-    <Header />
+        <Header />
+        <CharacterEntry character={testCharacter} />
   </React.StrictMode>,
   document.getElementById('root')
 );

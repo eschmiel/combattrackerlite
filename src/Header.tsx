@@ -9,9 +9,6 @@ export default function Header() {
             <a href='https://www.eschmiel.github.io/CombatTrackerLite' >
                 <div id='aboutButton'>ABOUT</div>
             </a>
-
         </div>
-
-        //set hover to color : 323232
     );
 }
