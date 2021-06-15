@@ -1,0 +1,19 @@
+#header {
+    background-color: black; 
+    height: 117px
+}
+
+#aboutButton {
+    float: right; 
+    width: 150px;
+    color: white; 
+    text-align: center; 
+    padding: 41px 0px;
+    font-size: 30px; 
+    font-family: georgia;
+    
+}
+
+    #aboutButton:hover {
+        background-color: #323232;
+    }
