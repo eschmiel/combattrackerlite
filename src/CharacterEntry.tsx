@@ -1,27 +1,27 @@
 import React from 'react';
+import {Character} from './Character';
 
-interface Character {
-    characterKey: number;
-    name: string;
-    init: number;
-    hp: number;
-    ac: number;
-    notes: string;
+interface ChangeCharacterDataFunctions {
+    changeName: (newName: string) => void;
+    changeInit: (newInit: number) => void;
+    changeHp: (newHp: number) => void;
+    changeAc: (newAc: number) => void;
+    changeNotes: (newNotes: string) => void;
 }
 
 interface CharacterEntryProps {
     character: Character;
-
+    //changeCharacterDataFunctions: ChangeCharacterDataFunctions;
 }
 
 export default function CharacterEntry({ character }: CharacterEntryProps) {
     return (
-        <div>
-            <input type='text' aria-label='name' name='name' value={character.name}/>
-            <input type='text' aria-label='init' value={character.init}/>
-            <input type='text' aria-label='hp' value={character.hp}/>
-            <input type='text' aria-label='ac' value={character.ac}/>
-            <input type='text' aria-label='notes' value={character.notes}/>
+        <div className='characterEntry'>
+            <input type='text' className='characterName' aria-label='name' name='name' value={character.name}/>
+            <input type='text' className='characterNumber' aria-label='init' value={character.init}/>
+            <input type='text' className='characterNumber' aria-label='hp' value={character.hp}/>
+            <input type='text' className='characterNumber' aria-label='ac' value={character.ac}/>
+            <input type='text' className='characterNotes' aria-label='notes' value={character.notes}/>
         </div>
 
     );

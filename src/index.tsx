@@ -5,7 +5,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Header from './Header';
 import './main.css';
+import './trackerTable.css';
 import CharacterEntry from './CharacterEntry';
+import TrackerTableLabelRow from './TrackerTableLabelRow';
+import TrackerTable from './TrackerTable';
 
 const testCharacter = {
     characterKey: 1,
@@ -19,7 +22,7 @@ const testCharacter = {
 ReactDOM.render(
   <React.StrictMode>
         <Header />
-        <CharacterEntry character={testCharacter} />
+        <TrackerTable />
   </React.StrictMode>,
   document.getElementById('root')
 );

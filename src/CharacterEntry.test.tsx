@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import { render } from '@testing-library/react';
 import CharacterEntry from './CharacterEntry';
 
+
 const testCharacter = {
     characterKey: 1,
     name: 'Test-o',
