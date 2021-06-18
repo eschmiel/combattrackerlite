@@ -1,23 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Header from './Header';
 import './main.css';
 import './trackerTable.css';
-import CharacterEntry from './CharacterEntry';
-import TrackerTableLabelRow from './TrackerTableLabelRow';
+
 import TrackerTable from './TrackerTable';
 
-const testCharacter = {
-    characterKey: 1,
-    name: 'Test-o',
-    init: 99,
-    hp: 50,
-    ac: 18,
-    notes: 'This is a test note'
-};
 
 ReactDOM.render(
   <React.StrictMode>

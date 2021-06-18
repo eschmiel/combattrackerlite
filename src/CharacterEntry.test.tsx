@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import { render } from '@testing-library/react';
 import CharacterEntry from './CharacterEntry';
 
+const mockChange = jest.fn();
 
 const testCharacter = {
     characterKey: 1,
@@ -14,11 +15,11 @@ const testCharacter = {
 };
 
 it('renders without crashing', () => {
-    render(<CharacterEntry character={testCharacter} />);
+    render(<CharacterEntry character={testCharacter} changeCharacter={mockChange} />);
 });
 
 it('displays the correct data', () => {
-    const { getByRole } = render(<CharacterEntry character={testCharacter} />);
+    const { getByRole } = render(<CharacterEntry character={testCharacter} changeCharacter={mockChange} />);
 
     expect(getByRole('textbox', { name: 'name' })).toHaveValue('Test-o');
     expect(getByRole('textbox', { name: 'init' })).toHaveValue('99');

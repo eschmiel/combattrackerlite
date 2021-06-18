@@ -1,27 +1,20 @@
 import React from 'react';
-import {Character} from './Character';
+import { CharacterData } from './TrackerTable';
 
-interface ChangeCharacterDataFunctions {
-    changeName: (newName: string) => void;
-    changeInit: (newInit: number) => void;
-    changeHp: (newHp: number) => void;
-    changeAc: (newAc: number) => void;
-    changeNotes: (newNotes: string) => void;
-}
-
+/*
 interface CharacterEntryProps {
     character: Character;
-    //changeCharacterDataFunctions: ChangeCharacterDataFunctions;
-}
+    changeCharacterDataFunctions: ChangeCharacterDataFunctions;
+}*/
 
-export default function CharacterEntry({ character }: CharacterEntryProps) {
+export default function CharacterEntry({ character, changeCharacter }: CharacterData) {
     return (
         <div className='characterEntry'>
-            <input type='text' className='characterName' aria-label='name' name='name' value={character.name}/>
-            <input type='text' className='characterNumber' aria-label='init' value={character.init}/>
-            <input type='text' className='characterNumber' aria-label='hp' value={character.hp}/>
-            <input type='text' className='characterNumber' aria-label='ac' value={character.ac}/>
-            <input type='text' className='characterNotes' aria-label='notes' value={character.notes}/>
+            <input type='text' className='characterName' aria-label='name' name='name' value={character.name} onChange={changeCharacter}/>
+            <input type='text' className='characterNumber' aria-label='init' name='init' value={character.init} onChange={changeCharacter}/>
+            <input type='text' className='characterNumber' aria-label='hp' name='hp' value={character.hp} onChange={changeCharacter}/>
+            <input type='text' className='characterNumber' aria-label='ac' name='ac' value={character.ac} onChange={changeCharacter}/>
+            <input type='text' className='characterNotes' aria-label='notes' name='notes' value={character.notes} onChange={changeCharacter}/>
         </div>
 
     );
