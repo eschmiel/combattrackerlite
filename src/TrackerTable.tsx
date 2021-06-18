@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow from './TrackerTableRow';
 import Character from './Character';
@@ -15,13 +15,11 @@ export interface CharacterData {
 
 
 export default function TrackerTable() {
-
  
     const defaultTrackerTableRowData: TrackerTableRowData[] = [{
         rowKey: 0,
         characterKey: 0
     }];
-
 
     const defaultCharacterData: CharacterData[] = [{ character: new Character(0), changeCharacter: setChangeCharacter(0)}];
     
@@ -31,6 +29,19 @@ export default function TrackerTable() {
     const [trackerTableRowData, changeTrackerTableRowData] = useState(defaultTrackerTableRowData);
     const [characterData, changeCharacterData] = useState(defaultCharacterData);
 
+    const rowKeyGeneratorRef = useRef(rowKeyGenerator);
+    const characterKeyGeneratorRef = useRef(characterKeyGenerator);
+    const trackerTableRowDataRef = useRef(trackerTableRowData);
+    const characterDataRef = useRef(characterData);
+
+    useEffect(() => {
+        rowKeyGeneratorRef.current = rowKeyGenerator;
+        characterKeyGeneratorRef.current = characterKeyGenerator;
+        trackerTableRowDataRef.current = trackerTableRowData;
+        characterDataRef.current = characterData;
+    })
+
+
     function setChangeCharacter(characterKey: number) {
         return (event: React.FormEvent<HTMLInputElement>): void => {
             let eventTargetName = event.currentTarget.attributes.getNamedItem('name');
@@ -38,10 +49,10 @@ export default function TrackerTable() {
             if (eventTargetName)
                 name = eventTargetName.value;
 
-            let targetIndex = characterData.findIndex((data) => characterKey === data.character.characterKey);
+            let targetIndex = characterDataRef.current.findIndex((data) => characterKey === data.character.characterKey);
 
             let newCharacterData: CharacterData[] = [];
-            characterData.forEach((data) => newCharacterData.push(data));
+            characterDataRef.current.forEach((data) => newCharacterData.push(data));
 
             switch (name) {
                 case 'name': {
@@ -81,23 +92,39 @@ export default function TrackerTable() {
 
     function generateTrackerTableRows() {
         let trackerTableRows = trackerTableRowData.map((rowData) => {
-            console.log(rowData);
+
             let rowCharacterData = characterData.find((charData) => rowData.characterKey === charData.character.characterKey);
-            if (rowCharacterData) {
-                console.log('beep');
+            if (rowCharacterData) 
                 return <TrackerTableRow key={rowData.rowKey} rowKey={rowData.rowKey} characterData={rowCharacterData} />
-            }
         });
-        console.log(trackerTableRows);
+
         return trackerTableRows;
     }
 
+    function addCombatant() {
+        let newTrackerTableRowData: TrackerTableRowData[] = [];
+        trackerTableRowData.forEach((data) => newTrackerTableRowData.push(data));
+
+        let newCharacterData: CharacterData[] = [];
+        characterData.forEach((data) => newCharacterData.push(data));
+
+        const newTrackerTableRowDataEntry: TrackerTableRowData = { rowKey: rowKeyGenerator, characterKey: characterKeyGenerator };
+        const newCharacterDataEntry: CharacterData = { character: new Character(characterKeyGenerator), changeCharacter: setChangeCharacter(characterKeyGenerator) };
+
+        newTrackerTableRowData.push(newTrackerTableRowDataEntry);
+        newCharacterData.push(newCharacterDataEntry);
+
+        changeRowKeyGenerator(rowKeyGenerator + 1);
+        changeCharacterKeyGenerator(characterKeyGenerator + 1);
+        changeTrackerTableRowData(newTrackerTableRowData);
+        changeCharacterData(newCharacterData);
+    }
 
     return (
         <div id='trackerTable'>
             <TrackerTableLabelRow />
             {generateTrackerTableRows()}
-            <div style={{width: '100px', margin: '50px auto', border: '1px solid black'}}>add combatant</div>
+            <div style={{ width: '100px', margin: '50px auto', border: '1px solid black' }} onClick={addCombatant}>add combatant</div>
         </div>
     );
 };
