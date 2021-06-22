@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useReducer } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow from './TrackerTableRow';
 import Character from './Character';
@@ -8,94 +8,141 @@ export interface TrackerTableRowData {
     characterKey: number;
 };
 
-export interface CharacterData {
-    character: Character;
-    changeCharacter: (event: React.FormEvent<HTMLInputElement>) => void;
+interface TrackerTableState {
+    rowKeyGenerator: number;
+    characterKeyGenerator: number;
+    trackerTableRowData: TrackerTableRowData[];
+    characterData: Character[];
+}
+
+interface ChangeCharacterPayload {
+    targetCharacterKey: number;
+    targetProperty: string;
+    newValue: string | number;
+}
+
+interface AddCombatantPayload {
+    newTrackerTableRowData: TrackerTableRowData[];
+    newCharacterData: Character[];
+}
+
+export type ActionType =
+    | { type: 'changeCharacter'; payload: ChangeCharacterPayload }
+    | { type: 'addCombatant'; payload: AddCombatantPayload };
+
+
+const initialState: TrackerTableState = {
+    rowKeyGenerator: 1,
+    characterKeyGenerator: 1,
+    trackerTableRowData: [{ rowKey: 0, characterKey: 0 }],
+    characterData: [new Character(0)]
 };
 
 
-export default function TrackerTable() {
- 
-    const defaultTrackerTableRowData: TrackerTableRowData[] = [{
-        rowKey: 0,
-        characterKey: 0
-    }];
-
-    const defaultCharacterData: CharacterData[] = [{ character: new Character(0), changeCharacter: setChangeCharacter(0)}];
+function changeCharacter(characterData: Character[], { targetCharacterKey, targetProperty, newValue }: ChangeCharacterPayload): Character[] {
     
+    let targetIndex = characterData.findIndex((data) => targetCharacterKey === data.characterKey);
 
-    const [rowKeyGenerator, changeRowKeyGenerator] = useState(1);
-    const [characterKeyGenerator, changeCharacterKeyGenerator] = useState(1);
-    const [trackerTableRowData, changeTrackerTableRowData] = useState(defaultTrackerTableRowData);
-    const [characterData, changeCharacterData] = useState(defaultCharacterData);
+    let newCharacterData: Character[] = [];
+    characterData.forEach((data) => newCharacterData.push(data));
 
-    const rowKeyGeneratorRef = useRef(rowKeyGenerator);
-    const characterKeyGeneratorRef = useRef(characterKeyGenerator);
-    const trackerTableRowDataRef = useRef(trackerTableRowData);
-    const characterDataRef = useRef(characterData);
-
-    useEffect(() => {
-        rowKeyGeneratorRef.current = rowKeyGenerator;
-        characterKeyGeneratorRef.current = characterKeyGenerator;
-        trackerTableRowDataRef.current = trackerTableRowData;
-        characterDataRef.current = characterData;
-    })
-
-
-    function setChangeCharacter(characterKey: number) {
-        return (event: React.FormEvent<HTMLInputElement>): void => {
-            let eventTargetName = event.currentTarget.attributes.getNamedItem('name');
-            let name; 
-            if (eventTargetName)
-                name = eventTargetName.value;
-
-            let targetIndex = characterDataRef.current.findIndex((data) => characterKey === data.character.characterKey);
-
-            let newCharacterData: CharacterData[] = [];
-            characterDataRef.current.forEach((data) => newCharacterData.push(data));
-
-            switch (name) {
-                case 'name': {
-                    let newName = event.currentTarget.value;
-                    newCharacterData[targetIndex].character.name = newName;
-                    break;
-                }
-                case 'init': {
-                    let newInit = Number(event.currentTarget.value);                   
-                    if(!isNaN(newInit))
-                        newCharacterData[targetIndex].character.init = newInit;
-                    break;
-                }
-                case 'hp': {
-                    let newHp = Number(event.currentTarget.value);
-                    if (!isNaN(newHp))
-                        newCharacterData[targetIndex].character.hp = newHp;
-                    break;
-                }
-                case 'ac': {
-                    let newAc = Number(event.currentTarget.value);
-                    if (!isNaN(newAc))
-                        newCharacterData[targetIndex].character.ac = newAc;
-                    break;
-                }
-                case 'notes': {
-                    let newNotes = event.currentTarget.value;
-                    newCharacterData[targetIndex].character.notes = newNotes;
-                    break;
-                }
-            }
-
-            changeCharacterData(newCharacterData);
+    switch (targetProperty) {
+        case 'name': {            
+            if(typeof newValue == 'string')
+                newCharacterData[targetIndex].name = newValue;
+            break;
+        }
+        case 'init': {
+            let convertedNewValue = Number(newValue);
+            if (!isNaN(convertedNewValue))
+                newCharacterData[targetIndex].init = convertedNewValue;
+            break;
+        }
+        case 'hp': {
+            let convertedNewValue = Number(newValue);
+            if (!isNaN(convertedNewValue))
+                newCharacterData[targetIndex].hp = convertedNewValue;
+            break;
+        }
+        case 'ac': {
+            let convertedNewValue = Number(newValue);
+            if (!isNaN(convertedNewValue))
+                newCharacterData[targetIndex].ac = convertedNewValue;
+            break;
+        }
+        case 'notes': {
+            if (typeof newValue == 'string')
+                newCharacterData[targetIndex].notes = newValue;
+            break;
         }
     }
 
+    return newCharacterData;
+}
+
+function sortCombatants(characterData: Character[], trackerTableRowData: TrackerTableRowData[]) {
+    let sortedCharacters: Character[] = [];
+    characterData.forEach((data) => sortedCharacters.push(data));
+
+    sortedCharacters.sort((characterA, characterB) => characterA.init - characterB.init);
+
+    let newTrackerTableRowData: TrackerTableRowData[] = [];
+    trackerTableRowData.forEach((data) => newTrackerTableRowData.push(data));
+
+    sortedCharacters.forEach((character, characterIndex) => newTrackerTableRowData[characterIndex].characterKey = character.characterKey);
+
+    return newTrackerTableRowData;
+}
+
+
+function reducer(state: TrackerTableState, action: ActionType): TrackerTableState {
+    switch (action.type) {
+        case 'changeCharacter':
+            let newCharacterData = changeCharacter(state.characterData, action.payload);
+            let newTrackerTableRowData = sortCombatants(state.characterData, state.trackerTableRowData);
+
+            return {
+                rowKeyGenerator: state.rowKeyGenerator,
+                characterKeyGenerator: state.characterKeyGenerator,
+                trackerTableRowData: newTrackerTableRowData,
+                characterData: newCharacterData
+            };
+
+        case 'addCombatant':
+            return {
+                rowKeyGenerator: state.rowKeyGenerator + 1,
+                characterKeyGenerator: state.characterKeyGenerator + 1,
+                trackerTableRowData: action.payload.newTrackerTableRowData,
+                characterData: action.payload.newCharacterData
+            };
+        default:
+            throw new Error();
+    }
+}
+
+export default function TrackerTable() {
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    function getNewCharacterData(targetCharacterKey: number, targetProperty: string, newValue: string | number) {
+        let action: ActionType = {
+            type: 'changeCharacter',
+            payload: {
+                targetCharacterKey: targetCharacterKey,
+                targetProperty: targetProperty,
+                newValue: newValue
+            }
+        };
+        dispatch(action);
+    }
 
     function generateTrackerTableRows() {
-        let trackerTableRows = trackerTableRowData.map((rowData) => {
+        let trackerTableRows = state.trackerTableRowData.map((rowData: TrackerTableRowData) => {
 
-            let rowCharacterData = characterData.find((charData) => rowData.characterKey === charData.character.characterKey);
-            if (rowCharacterData) 
-                return <TrackerTableRow key={rowData.rowKey} rowKey={rowData.rowKey} characterData={rowCharacterData} />
+            let rowCharacterData = state.characterData.find((charData: Character) => rowData.characterKey === charData.characterKey);
+
+            if (rowCharacterData)
+                return <TrackerTableRow key={rowData.rowKey} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData}/>
         });
 
         return trackerTableRows;
@@ -103,21 +150,18 @@ export default function TrackerTable() {
 
     function addCombatant() {
         let newTrackerTableRowData: TrackerTableRowData[] = [];
-        trackerTableRowData.forEach((data) => newTrackerTableRowData.push(data));
+        state.trackerTableRowData.forEach((data: TrackerTableRowData) => newTrackerTableRowData.push(data));
 
-        let newCharacterData: CharacterData[] = [];
-        characterData.forEach((data) => newCharacterData.push(data));
+        let newCharacterData: Character[] = [];
+        state.characterData.forEach((data: Character) => newCharacterData.push(data));
 
-        const newTrackerTableRowDataEntry: TrackerTableRowData = { rowKey: rowKeyGenerator, characterKey: characterKeyGenerator };
-        const newCharacterDataEntry: CharacterData = { character: new Character(characterKeyGenerator), changeCharacter: setChangeCharacter(characterKeyGenerator) };
+        const newTrackerTableRowDataEntry: TrackerTableRowData = { rowKey: state.rowKeyGenerator, characterKey: state.characterKeyGenerator };
+        const newCharacterDataEntry: Character = new Character(state.characterKeyGenerator);
 
         newTrackerTableRowData.push(newTrackerTableRowDataEntry);
         newCharacterData.push(newCharacterDataEntry);
 
-        changeRowKeyGenerator(rowKeyGenerator + 1);
-        changeCharacterKeyGenerator(characterKeyGenerator + 1);
-        changeTrackerTableRowData(newTrackerTableRowData);
-        changeCharacterData(newCharacterData);
+        dispatch({ type: 'addCombatant', payload: { newTrackerTableRowData: newTrackerTableRowData, newCharacterData: newCharacterData } });
     }
 
     return (

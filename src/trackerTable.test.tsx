@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TrackerTable from './TrackerTable';
+    
 
 it('renders without crashing', () => {
     render(<TrackerTable />);
@@ -31,7 +32,7 @@ it('generates new table rows and characters', () => {
     expect(tableRowHps[1]).toHaveValue('10');
     expect(tableRowAcs[1]).toHaveValue('10');
     expect(tableRowNotes[1]).toHaveValue('notey notey notes');
-})
+});
 
 
 it('Changes the data in a Tracker Table Row', () => {
@@ -55,6 +56,12 @@ it('Changes the data in a Tracker Table Row', () => {
     expect(hpInput).toHaveValue('15');
     expect(acInput).toHaveValue('16');
     expect(notesInput).toHaveValue("Here's a note about Bob");
+    
+    userEvent.type(nameInput, '{selectall}{del}Default Character'); //cleanup doesn't reset state from reducers when components unmount. Seems to be a testing-library bug
+    userEvent.type(initInput, '{selectall}{del}99');//these calls reset the state manually
+    userEvent.type(hpInput, '{selectall}{del}10');
+    userEvent.type(acInput, '{selectall}{del}10');
+    userEvent.type(notesInput, "{selectall}{del}notey notey notes");
 });
 
 
@@ -72,4 +79,28 @@ it('only accepts numbers for init, hp and ac', () => {
     expect(initInput).toHaveValue('99');
     expect(hpInput).toHaveValue('10');
     expect(acInput).toHaveValue('10');
+});
+
+it('sorts rowData by initiative value', () => {
+    const { getAllByRole } = render(<TrackerTable />);
+
+    userEvent.dblClick(screen.getByText('add combatant'));
+
+    let characterNumber = 1;
+    getAllByRole('textbox', { name: 'name' }).forEach((textbox) => {
+        userEvent.type(textbox, ' #' + characterNumber);
+        console.log(characterNumber);
+        characterNumber++;
+    });
+
+    let initiativeNumber = 3;
+    screen.getAllByRole('textbox', { name: 'init' }).forEach((textbox) => {
+        userEvent.type(textbox, '{selectall}{del}' + initiativeNumber);   
+        initiativeNumber--;
+    })
+
+    screen.getAllByRole('textbox', { name: 'init' }).forEach((textbox) => {
+        initiativeNumber++;
+        waitFor(() => { expect(textbox).toHaveValue(initiativeNumber.toString()) });
+    })
 });

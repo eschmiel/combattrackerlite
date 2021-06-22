@@ -1,16 +1,18 @@
 import React from 'react';
 import CharacterEntry from './CharacterEntry';
-import { CharacterData } from './TrackerTable';
+import { ActionType } from './TrackerTable';
+import Character from './Character';
 
 interface TrackerTableRowProps {
     rowKey: number;
-    characterData: CharacterData;
+    characterData: Character;
+    changeCharacter: (targetCharacterKey: number, targetProperty: string, newValue: string | number) => void;
 }
 
-export default function TrackerTableRow({ rowKey, characterData }: TrackerTableRowProps) {
+export default function TrackerTableRow({ rowKey, characterData, changeCharacter }: TrackerTableRowProps) {
     return (
-        <div>
-            <CharacterEntry character={characterData.character} changeCharacter={characterData.changeCharacter} />
+        <div className='trackerTableRow'>
+            <CharacterEntry character={characterData} changeCharacter={changeCharacter} />
         </div>
     );
 };
