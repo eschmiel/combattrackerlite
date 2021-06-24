@@ -14,14 +14,6 @@
     
 }
 
-.trackerTableRow:hover {
-    width: 707px;
-    height: 53px;
-    background-color: #f1f1f1;
-    right: 10px;
-    position: relative;
-}
-
 #nameLabel {
     float: left;
     height: 37px;
@@ -47,15 +39,33 @@
     padding-left: 10px;
 }
 
-.trackerTableRow{
+.trackerTableRow {
     background-color: #f1f1f1;
     cursor: grab;
     border: 2px solid black;
+    width: 688px;
+    right: 0px;
+    height: 39px;
+    transition-duration: 500ms;
+ 
 }
-.characterEntry input {
+
+.trackerTableRow:hover {
+    width: 827px;
+    height: 53px;
+    background-color: #f1f1f1;
+    right: 10px;
+    position: relative;
+    transition-duration: 500ms;
+
+    
+}
+
+.trackerTableRow input {
     height: 37px;
     background: rgba(0, 0, 0, 0);
     border: 0px;
+    float: left;
 }
 
 .characterName {
@@ -63,20 +73,146 @@
     margin-left: 10px;
     margin-right: 15px;
     border: 0px;
+    transition: 500ms;
 }
 
-.characterEntry .characterNumber {
+.subCharacterEntry .characterName {
+    width: 168px;
+    margin-left: 30px;
+    margin-right: 12px;
+    border: 0px;
+    transition: 500ms;
+    border-left: 2px solid black;
+    padding-left: 5px;
+}
+
+.trackerTableRow .characterNumber {
     width: 60px;
     text-align: center;
     border-left: 2px solid black;
     border-right: 2px solid black;
+    transition: 500ms;
 }
 
-.characterEntry .characterNumber:nth-child(3) {
+.trackerTableRow .characterNumber:nth-child(3) {
     border: 0px;    
 }
 
 .characterNotes {
     width: 253px;
     padding-left: 10px;
+    transition: 500ms;
+}
+
+.subCharacterEntry .characterNotes {
+    width: 233px;
+    padding-left: 10px;
+    transition: 500ms;
+    border-right: 2px solid black;
+}
+
+.trackerTableRow:hover .characterEntryButtons {
+    float: right;
+    width: 98px;
+    height: 53px;
+    display: inline-block;
+    border-left: 2px solid black;
+    cursor: default;
+    margin-left: 12px;
+    transition: 500ms;
+    border-right: 0px;
+}
+
+.characterEntryButtons {
+    float: right;
+   
+    display: inline-block;
+    width: 2px;
+    height: 39px;
+    border-right: 0px solid black;
+    border-left: 2px solid black;
+    transition: 500ms;
+    
+}
+
+.trackerTableRow:hover .removeEntryButton {
+    width: 28px;
+    height: 9px;
+    border-radius: 5px;
+    border: 2px solid #a9a9a9;
+    margin-left: 12px;
+    margin-bottom: 6px;
+    display: inline-block;
+    cursor: pointer;
+    transition: width 500ms, height 500ms, margin-left 500ms, margin-bottom 500ms, border 50ms;
+    
+}
+
+.removeEntryButton {
+    width: 0px;
+    height: 9px;
+    border: 0px solid #a9a9a9;
+    display: inline-block;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    transition: width 500ms, margin-left 500ms, margin-bottom 500ms, border 150ms;
+}
+
+.characterEntryButtons img {
+    height: 0px;
+    margin-left: 0px;
+    margin-top: 30px;
+    transition: 500ms;
+}
+
+.trackerTableRow:hover .characterEntryButtons img{
+    height: 28px;
+    margin-left: 12px;
+    margin-top: 11px;
+    cursor: pointer;
+    transition: 500ms;
+}
+
+.trackerTableRow:hover .characterName {
+    width: 188px;
+    margin-left: 10px;
+    margin-right: 25px;
+    border: 0px;
+    padding-top: 10px;
+    transition: 500ms;
+}
+
+.trackerTableRow:hover .characterNumber {
+    width: 60px;
+    height: 53px;
+    text-align: center;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    transition: 500ms;
+}
+
+.trackerTableRow:hover .characterNotes{
+    width: 253px;
+    padding-left: 10px;
+    padding-top: 10px;
+    transition: 500ms;
+}
+
+.groupBlank {
+    height: 39px;
+    background: #a9a9a9;
+    float: left;
+    width: 64px;
+    text-align: center;
+    border-right: 2px solid black;
+    transition: 500ms;
+}
+
+.trackerTableRow:hover .groupBlank {
+   
+    height: 53px;
+    text-align: center;
+
+    border-right: 2px solid black;
+    transition: 500ms;
 }

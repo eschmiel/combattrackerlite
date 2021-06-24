@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow from './TrackerTableRow';
 import Character from './Character';
+import { group } from 'console';
 
 export interface TrackerTableRowData {
     rowKey: number;
@@ -21,14 +22,27 @@ interface ChangeCharacterPayload {
     newValue: string | number;
 }
 
+interface ChangeSubCharacterPayload extends ChangeCharacterPayload {
+    targetSubCharacterKey: number;
+}
+
 interface AddCombatantPayload {
+    newTrackerTableRowData: TrackerTableRowData[];
+    newCharacterData: Character[];
+}
+
+interface RemoveCombatantPayload {
     newTrackerTableRowData: TrackerTableRowData[];
     newCharacterData: Character[];
 }
 
 export type ActionType =
     | { type: 'changeCharacter'; payload: ChangeCharacterPayload }
-    | { type: 'addCombatant'; payload: AddCombatantPayload };
+    | { type: 'addCombatant'; payload: AddCombatantPayload }
+    | { type: 'removeCombatant'; payload: RemoveCombatantPayload }
+    | { type: 'sortCombatants' }
+    | { type: 'addSubCombatant', payload: Character[] }
+    | { type: 'changeSubCharacter', payload: ChangeSubCharacterPayload };
 
 
 const initialState: TrackerTableState = {
@@ -80,6 +94,43 @@ function changeCharacter(characterData: Character[], { targetCharacterKey, targe
     return newCharacterData;
 }
 
+function changeSubCharacter(characterData: Character[], { targetCharacterKey, targetSubCharacterKey, targetProperty, newValue }: ChangeSubCharacterPayload): Character[] {
+
+    let targetCharacterIndex = characterData.findIndex((data) => targetCharacterKey === data.characterKey);
+
+    let newCharacterData: Character[] = [];
+    characterData.forEach((data) => newCharacterData.push(data));
+
+    let targetSubCharacterIndex = newCharacterData[targetCharacterIndex].subCharacters.findIndex((data) => data.subCharacterKey === targetSubCharacterKey);
+
+    switch (targetProperty) {
+        case 'name': {
+            if (typeof newValue == 'string')
+                newCharacterData[targetCharacterIndex].subCharacters[targetSubCharacterIndex].name = newValue;
+            break;
+        }
+        case 'hp': {
+            let convertedNewValue = Number(newValue);
+            if (!isNaN(convertedNewValue))
+                newCharacterData[targetCharacterIndex].subCharacters[targetSubCharacterIndex].hp = convertedNewValue;
+            break;
+        }
+        case 'ac': {
+            let convertedNewValue = Number(newValue);
+            if (!isNaN(convertedNewValue))
+                newCharacterData[targetCharacterIndex].subCharacters[targetSubCharacterIndex].ac = convertedNewValue;
+            break;
+        }
+        case 'notes': {
+            if (typeof newValue == 'string')
+                newCharacterData[targetCharacterIndex].subCharacters[targetSubCharacterIndex].notes = newValue;
+            break;
+        }
+    }
+
+    return newCharacterData;
+}
+
 function sortCombatants(characterData: Character[], trackerTableRowData: TrackerTableRowData[]) {
     let sortedCharacters: Character[] = [];
     characterData.forEach((data) => sortedCharacters.push(data));
@@ -97,16 +148,27 @@ function sortCombatants(characterData: Character[], trackerTableRowData: Tracker
 
 function reducer(state: TrackerTableState, action: ActionType): TrackerTableState {
     switch (action.type) {
-        case 'changeCharacter':
+        case 'changeCharacter': {
             let newCharacterData = changeCharacter(state.characterData, action.payload);
-            let newTrackerTableRowData = sortCombatants(state.characterData, state.trackerTableRowData);
 
             return {
                 rowKeyGenerator: state.rowKeyGenerator,
                 characterKeyGenerator: state.characterKeyGenerator,
-                trackerTableRowData: newTrackerTableRowData,
+                trackerTableRowData: state.trackerTableRowData,
                 characterData: newCharacterData
             };
+        }
+
+        case 'changeSubCharacter': {
+            let newCharacterData = changeSubCharacter(state.characterData, action.payload);
+
+            return {
+                rowKeyGenerator: state.rowKeyGenerator,
+                characterKeyGenerator: state.characterKeyGenerator,
+                trackerTableRowData: state.trackerTableRowData,
+                characterData: newCharacterData
+            };
+        }
 
         case 'addCombatant':
             return {
@@ -115,6 +177,33 @@ function reducer(state: TrackerTableState, action: ActionType): TrackerTableStat
                 trackerTableRowData: action.payload.newTrackerTableRowData,
                 characterData: action.payload.newCharacterData
             };
+
+        case 'removeCombatant':
+            return {
+                rowKeyGenerator: state.rowKeyGenerator,
+                characterKeyGenerator: state.characterKeyGenerator,
+                trackerTableRowData: action.payload.newTrackerTableRowData,
+                characterData: action.payload.newCharacterData
+            };
+
+        case 'sortCombatants':
+            let newTrackerTableRowData = sortCombatants(state.characterData, state.trackerTableRowData);
+
+            return {
+                rowKeyGenerator: state.rowKeyGenerator,
+                characterKeyGenerator: state.characterKeyGenerator,
+                trackerTableRowData: newTrackerTableRowData,
+                characterData: state.characterData
+            };
+
+        case 'addSubCombatant':
+            return {
+                rowKeyGenerator: state.rowKeyGenerator,
+                characterKeyGenerator: state.characterKeyGenerator,
+                trackerTableRowData: state.trackerTableRowData,
+                characterData: action.payload
+            };
+
         default:
             throw new Error();
     }
@@ -136,17 +225,60 @@ export default function TrackerTable() {
         dispatch(action);
     }
 
+    function getNewSubCharacterData(targetCharacterKey: number, targetSubCharacterKey: number, targetProperty: string, newValue: string | number) {
+        let action: ActionType = {
+            type: 'changeSubCharacter',
+            payload: {
+                targetCharacterKey: targetCharacterKey,
+                targetSubCharacterKey: targetSubCharacterKey,
+                targetProperty: targetProperty,
+                newValue: newValue
+            }
+        };
+        dispatch(action);
+    }
+
+
+
     function generateTrackerTableRows() {
-        let trackerTableRows = state.trackerTableRowData.map((rowData: TrackerTableRowData) => {
+        let rowType: string = '';
+        let groupCheck = false;
+        let currentSubCharacterIndex = 0;
+        let subCharacterCheck = 0;
+        let rowKeyGenerator = 0;
+
+        let trackerTableRows: JSX.Element[] = [];
+
+        state.trackerTableRowData.forEach((rowData: TrackerTableRowData) => {
 
             let rowCharacterData = state.characterData.find((charData: Character) => rowData.characterKey === charData.characterKey);
 
-            if (rowCharacterData)
-                return <TrackerTableRow key={rowData.rowKey} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData}/>
+            if (rowCharacterData) {
+                    if (rowCharacterData.subCharacters.length) {
+                        
+                        rowType = 'GroupEntry';
+                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={0} />);
+                        rowKeyGenerator++;
+
+                        rowType = 'SubCharacterEntry';
+                        rowCharacterData.subCharacters.forEach((subCharacter, subCharacterIndex) => {
+                            if(rowCharacterData)
+                            trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={subCharacterIndex} />);
+                            rowKeyGenerator++;
+                        });
+                    }
+                    else {
+                        rowType = 'CharacterEntry';
+                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={0} />);
+
+                        rowKeyGenerator++;
+                    }
+               }
         });
 
         return trackerTableRows;
     }
+
 
     function addCombatant() {
         let newTrackerTableRowData: TrackerTableRowData[] = [];
@@ -162,6 +294,51 @@ export default function TrackerTable() {
         newCharacterData.push(newCharacterDataEntry);
 
         dispatch({ type: 'addCombatant', payload: { newTrackerTableRowData: newTrackerTableRowData, newCharacterData: newCharacterData } });
+    }
+
+
+    function removeCombatant(targetRowKey: number) {
+        let targetRowIndex = state.trackerTableRowData.findIndex((data) => data.rowKey === targetRowKey);
+        //let targetCharacterKey: number;
+
+        if (targetRowIndex !== -1) {
+            let newTrackerTableRowData: TrackerTableRowData[] = [];
+            let newCharacterData: Character[] = [];
+
+            let targetCharacterKey: number = state.trackerTableRowData[targetRowIndex].characterKey;
+
+            state.trackerTableRowData.forEach((data, currentIndex) => { if (currentIndex !== targetRowIndex) newTrackerTableRowData.push(data); });
+            state.characterData.forEach((data) => { if (data.characterKey != targetCharacterKey) newCharacterData.push(data); });
+
+            let action: ActionType = {
+                type: 'removeCombatant',
+                payload: {
+                    newCharacterData: newCharacterData,
+                    newTrackerTableRowData: newTrackerTableRowData
+                }
+            };
+
+            dispatch(action);
+        }
+    }
+
+    function addSubCombatant(targetCharacterKey: number) {
+        let newCharacterData: Character[] = [];
+        state.characterData.forEach((data) => newCharacterData.push(data));
+
+        let targetCombatantIndex = newCharacterData.findIndex((data) => data.characterKey === targetCharacterKey);
+        newCharacterData[targetCombatantIndex].addSubCharacter();
+
+        let action: ActionType = {
+            type: 'addSubCombatant',
+            payload: newCharacterData
+        };
+
+        dispatch(action);
+    }
+
+    function sortCombatants() {
+        dispatch({ type: 'sortCombatants' });
     }
 
     return (
