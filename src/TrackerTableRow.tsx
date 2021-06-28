@@ -29,6 +29,7 @@ export interface SubEntryProps {
         rowType: SubEntryRowTypes,
         subCharacter: SubCharacter,
         changeSubCharacter: (targetProperty: string, newValue: string | number) => void;
+        removeSubCombatant: (targetSubCharacterKey: number) => void;
     }
 };
 

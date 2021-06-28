@@ -3,7 +3,7 @@ import { SubEntryProps } from './TrackerTableRow';
 
 
 export default function SubCharacterEntry(props: SubEntryProps) {
-    let { subCharacter, changeSubCharacter } = props.entryProps;
+    let { subCharacter, changeSubCharacter, removeSubCombatant } = props.entryProps;
 
     return (
 
@@ -23,7 +23,7 @@ export default function SubCharacterEntry(props: SubEntryProps) {
                 onChange={(e) => changeSubCharacter('notes', e.currentTarget.value)} />
 
             <div className='characterEntryButtons'>
-                <div className='removeEntryButton' />
+                <div className='removeEntryButton' onClick={() => removeSubCombatant(subCharacter.subCharacterKey)} />
             </div>
         </div>
     );
