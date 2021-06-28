@@ -1,8 +1,8 @@
 import React, { useReducer } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
-import TrackerTableRow from './TrackerTableRow';
+import TrackerTableRow, { MainEntryRowTypes, SubEntryRowTypes } from './TrackerTableRow';
 import Character from './Character';
-import { group } from 'console';
+
 
 export interface TrackerTableRowData {
     rowKey: number;
@@ -241,10 +241,6 @@ export default function TrackerTable() {
 
 
     function generateTrackerTableRows() {
-        let rowType: string = '';
-        let groupCheck = false;
-        let currentSubCharacterIndex = 0;
-        let subCharacterCheck = 0;
         let rowKeyGenerator = 0;
 
         let trackerTableRows: JSX.Element[] = [];
@@ -252,27 +248,50 @@ export default function TrackerTable() {
         state.trackerTableRowData.forEach((rowData: TrackerTableRowData) => {
 
             let rowCharacterData = state.characterData.find((charData: Character) => rowData.characterKey === charData.characterKey);
-
             if (rowCharacterData) {
-                    if (rowCharacterData.subCharacters.length) {
-                        
-                        rowType = 'GroupEntry';
-                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={0} />);
-                        rowKeyGenerator++;
 
-                        rowType = 'SubCharacterEntry';
-                        rowCharacterData.subCharacters.forEach((subCharacter, subCharacterIndex) => {
-                            if(rowCharacterData)
-                            trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={subCharacterIndex} />);
-                            rowKeyGenerator++;
-                        });
-                    }
-                    else {
-                        rowType = 'CharacterEntry';
-                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} rowKey={rowData.rowKey} characterData={rowCharacterData} changeCharacter={getNewCharacterData} deleteRow={removeCombatant} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} changeSubCharacter={getNewSubCharacterData} rowType={rowType} currentSubCharacterIndex={0} />);
+                let rowCharacter = rowCharacterData;
 
+                let mainEntryProps= {
+                    
+                        rowType: MainEntryRowTypes.CHARACTER,
+                        characterData: rowCharacter,
+                        deleteRow: () => removeCombatant(rowData.rowKey),
+                        changeCharacter: (targetProperty: string, newValue: string | number) =>
+                            getNewCharacterData(rowCharacter.characterKey, targetProperty, newValue),
+                        sortCombatants: sortCombatants,
+                        addSubCombatant: () => addSubCombatant(rowCharacter.characterKey)
+                    
+                };
+
+                
+                if (rowCharacter.subCharacters.length) {
+                    mainEntryProps.rowType = MainEntryRowTypes.GROUP;
+
+                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} />);
+                    rowKeyGenerator++;
+
+                    rowCharacter.subCharacters.forEach((subCharacter) => {
+
+                        let subEntryProps = {
+                                rowType: SubEntryRowTypes.SUBCHARACTER,
+                                subCharacter: subCharacter,
+                                changeSubCharacter: (targetProperty: string, newValue: string | number) =>
+                                    getNewSubCharacterData(rowCharacter.characterKey, subCharacter.subCharacterKey, targetProperty, newValue)
+                            
+                        };
+
+                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={subEntryProps} />);
                         rowKeyGenerator++;
-                    }
+                    
+                     });
+                }
+                else {
+                    
+                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} />);
+
+                    rowKeyGenerator++;
+                }
                }
         });
 
@@ -308,7 +327,7 @@ export default function TrackerTable() {
             let targetCharacterKey: number = state.trackerTableRowData[targetRowIndex].characterKey;
 
             state.trackerTableRowData.forEach((data, currentIndex) => { if (currentIndex !== targetRowIndex) newTrackerTableRowData.push(data); });
-            state.characterData.forEach((data) => { if (data.characterKey != targetCharacterKey) newCharacterData.push(data); });
+            state.characterData.forEach((data) => { if (data.characterKey !== targetCharacterKey) newCharacterData.push(data); });
 
             let action: ActionType = {
                 type: 'removeCombatant',

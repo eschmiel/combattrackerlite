@@ -1,41 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import CharacterEntry from './CharacterEntry';
-import Character from './Character';
+import Character, { SubCharacter } from './Character';
 import GroupEntry from './GroupEntry';
 import SubCharacterEntry from './SubCharacterEntry';
 
-
-interface TrackerTableRowProps {
-    rowKey: number;
-    characterData: Character;
-    changeCharacter: (targetCharacterKey: number, targetProperty: string, newValue: string | number) => void;
-    deleteRow: (rowKey: number) => void;
-    sortCombatants: () => void;
-    addSubCombatant: (targetCharacterKey: number) => void;
-    changeSubCharacter: (targetCharacterKey: number, targetSubCharacterKey: number, targetProperty: string, newValue: string | number) => void;
-    rowType: string;
-    currentSubCharacterIndex: number;
+export enum MainEntryRowTypes {
+    CHARACTER = 'CharacterEntry',
+    GROUP = 'GroupEntry'
 }
 
-export default function TrackerTableRow({ rowKey, characterData, changeCharacter, deleteRow, sortCombatants, addSubCombatant, rowType, changeSubCharacter, currentSubCharacterIndex }: TrackerTableRowProps) {
-    const [hover, changeHover] = useState(false);
+export enum SubEntryRowTypes {
+    SUBCHARACTER = 'SubCharacterEntry'
+}
 
-    function toggleHover() {
-        changeHover(!hover);
+export interface MainEntryProps {
+    entryProps: {
+        rowType: MainEntryRowTypes;
+        characterData: Character;
+        changeCharacter: (targetProperty: string, newValue: string | number) => void;
+        deleteRow: () => void;
+        sortCombatants: () => void;
+        addSubCombatant: () => void;
     }
+};
 
-    function removeCharacter() {
-        deleteRow(rowKey);
+export interface SubEntryProps {
+    entryProps: {
+        rowType: SubEntryRowTypes,
+        subCharacter: SubCharacter,
+        changeSubCharacter: (targetProperty: string, newValue: string | number) => void;
     }
+};
 
+
+export default function TrackerTableRow(props: MainEntryProps | SubEntryProps) {
+    
     return (
-        <div onMouseEnter={toggleHover} onMouseLeave={toggleHover} className='trackerTableRow'>
-            {
-                rowType === 'CharacterEntry' ? <CharacterEntry character={characterData} changeCharacter={changeCharacter} removeCharacter={removeCharacter} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} /> :
-                rowType === 'GroupEntry' ? <GroupEntry character={characterData} changeCharacter={changeCharacter} removeCharacter={removeCharacter} sortCombatants={sortCombatants} addSubCombatant={addSubCombatant} /> :
-                rowType === 'SubCharacterEntry' ? <SubCharacterEntry subCharacter={characterData.subCharacters[currentSubCharacterIndex]} changeSubCharacter={changeSubCharacter} characterKey={characterData.characterKey} /> :
-            '' }
-            
+        <div className='trackerTableRow'>
+            {    
+                props.entryProps.rowType === 'CharacterEntry' ? <CharacterEntry entryProps={props.entryProps} /> :
+                props.entryProps.rowType === 'GroupEntry' ? <GroupEntry entryProps={props.entryProps} /> :
+                props.entryProps.rowType === 'SubCharacterEntry' ? <SubCharacterEntry entryProps={props.entryProps} /> : ''
+            }        
         </div>
     );
 };
