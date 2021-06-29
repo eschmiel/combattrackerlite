@@ -17,3 +17,41 @@
 #aboutButton:hover {
     background-color: #323232;
 }
+
+.notepad {
+    margin: 117px auto;
+    width: 687px;
+    border: 2px solid black;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-top: none;
+}
+
+.notepadLabel {
+    height: 47px;
+    border-bottom: 2px solid black;
+    border-top: 2px solid black;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color: #d4d4d4;
+    text-align: center;
+    
+}
+
+.notepadLabel p {
+    margin-top: 16px;
+    font-size: 18px;
+}
+
+.notepad textarea {
+    margin-left: 13px;
+    margin-top: 18px;
+    border: none;
+    resize: vertical;
+}
+
+.notepad textarea:focus {
+   outline: none;
+}

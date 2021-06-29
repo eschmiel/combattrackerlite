@@ -7,11 +7,21 @@ export default function CharacterEntry(props: MainEntryProps) {
 
     let { characterData, changeCharacter, deleteRow, sortCombatants, addSubCombatant } = props.entryProps;
 
+    let nameStyle = {
+        textDecoration: 'initial',
+    };
+
+    if (!characterData.hp)
+        nameStyle.textDecoration = 'line-through';
+    
+
+
     return (
         
         <div className='characterEntry'>
             <input type='text' className='characterName' aria-label='name' name='name' value={characterData.name}
-                onChange={(e) => changeCharacter('name', e.currentTarget.value)} />
+                onChange={(e) => changeCharacter('name', e.currentTarget.value)} style={nameStyle}/> 
+                
 
             <input type='text' className='characterNumber' aria-label='init' name='init' value={characterData.init}
                 onChange={(e) => changeCharacter('init', e.currentTarget.value)} onBlur={sortCombatants} />

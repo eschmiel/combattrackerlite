@@ -29,11 +29,11 @@ export default class Character implements CharacterInterface {
 
     constructor(characterKey: number) {
         this.characterKey = characterKey;
-        this.name = 'Default Character';
-        this.init = 99;
+        this.name = '';
+        this.init = 0;
         this.hp = 10;
         this.ac = 10;
-        this.notes = 'notey notey notes';
+        this.notes = '';
         this.subCharacters = [];
         this.subCharacterKeyGenerator = 1;
     }

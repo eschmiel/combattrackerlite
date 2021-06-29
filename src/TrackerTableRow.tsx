@@ -33,11 +33,36 @@ export interface SubEntryProps {
     }
 };
 
+interface SubEntryTrackerTableRowProps extends SubEntryProps {
+    rowNumber: number;
+}
 
-export default function TrackerTableRow(props: MainEntryProps | SubEntryProps) {
-    
+interface MainEntryTrackerTableRowProps extends MainEntryProps {
+    rowNumber: number;
+}
+
+type TrackerTableRowStyle = {
+    backgroundColor: string;
+    width?: string;
+    margin?: string;
+};
+
+export default function TrackerTableRow(props: MainEntryTrackerTableRowProps | SubEntryTrackerTableRowProps) {
+
+    let trackerTableRowStyle: TrackerTableRowStyle = {
+        backgroundColor: '#ffffff',
+    };
+
+    if(props.rowNumber % 2 == 1)
+        trackerTableRowStyle.backgroundColor = '#f1f1f1';
+/*
+    if (props.entryProps.rowType === 'SubCharacterEntry') {
+
+        trackerTableRowStyle.width = '600px';
+        trackerTableRowStyle.margin = 'auto';
+    }*/
     return (
-        <div className='trackerTableRow'>
+        <div className='trackerTableRow' style={trackerTableRowStyle}>
             {    
                 props.entryProps.rowType === 'CharacterEntry' ? <CharacterEntry entryProps={props.entryProps} /> :
                 props.entryProps.rowType === 'GroupEntry' ? <GroupEntry entryProps={props.entryProps} /> :

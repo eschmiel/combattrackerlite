@@ -2,7 +2,7 @@ import React, { useReducer } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow, { MainEntryRowTypes, SubEntryRowTypes } from './TrackerTableRow';
 import Character, { SubCharacter } from './Character';
-const clone = require('rfdc')();
+import AddEntryButton from './addGroupEntryButtonLight.svg';
 
 export interface TrackerTableRowData {
     rowKey: number;
@@ -26,20 +26,16 @@ interface ChangeSubCharacterPayload extends ChangeCharacterPayload {
     targetSubCharacterKey: number;
 }
 
-interface AddCombatantPayload {
+interface CombatantPayload {
     newTrackerTableRowData: TrackerTableRowData[];
     newCharacterData: Character[];
 }
 
-interface RemoveCombatantPayload {
-    newTrackerTableRowData: TrackerTableRowData[];
-    newCharacterData: Character[];
-}
 
 export type ActionType =
     | { type: 'changeCharacter'; payload: ChangeCharacterPayload }
-    | { type: 'addCombatant'; payload: AddCombatantPayload }
-    | { type: 'removeCombatant'; payload: RemoveCombatantPayload }
+    | { type: 'addCombatant'; payload: CombatantPayload }
+    | { type: 'removeCombatant'; payload: CombatantPayload }
     | { type: 'sortCombatants' }
     | { type: 'addSubCombatant', payload: Character[] }
     | { type: 'changeSubCharacter', payload: ChangeSubCharacterPayload }
@@ -76,8 +72,7 @@ function changeCharacter(characterData: Character[], { targetCharacterKey, targe
     
     let targetIndex = characterData.findIndex((data) => targetCharacterKey === data.characterKey);
 
-    let newCharacterData: Character[] = [];
-    characterData.forEach((data) => newCharacterData.push(data));
+    let newCharacterData= deepCloneCharacterData(characterData);
 
     switch (targetProperty) {
         case 'name': {            
@@ -117,8 +112,7 @@ function changeSubCharacter(characterData: Character[], { targetCharacterKey, ta
 
     let targetCharacterIndex = characterData.findIndex((data) => targetCharacterKey === data.characterKey);
 
-    let newCharacterData: Character[] = [];
-    characterData.forEach((data) => newCharacterData.push(data));
+    let newCharacterData = deepCloneCharacterData(characterData);
 
     let targetSubCharacterIndex = newCharacterData[targetCharacterIndex].subCharacters.findIndex((data) => data.subCharacterKey === targetSubCharacterKey);
 
@@ -151,13 +145,12 @@ function changeSubCharacter(characterData: Character[], { targetCharacterKey, ta
 }
 
 function sortCombatants(characterData: Character[], trackerTableRowData: TrackerTableRowData[]) {
-    let sortedCharacters: Character[] = [];
-    characterData.forEach((data) => sortedCharacters.push(data));
+    let sortedCharacters = deepCloneCharacterData(characterData);
 
-    sortedCharacters.sort((characterA, characterB) => characterA.init - characterB.init);
+    sortedCharacters.sort((characterA, characterB) => characterB.init - characterA.init);
 
     let newTrackerTableRowData: TrackerTableRowData[] = [];
-    trackerTableRowData.forEach((data) => newTrackerTableRowData.push(data));
+    trackerTableRowData.forEach((data) => newTrackerTableRowData.push(Object.assign({}, data)));
 
     sortedCharacters.forEach((character, characterIndex) => newTrackerTableRowData[characterIndex].characterKey = character.characterKey);
 
@@ -236,7 +229,7 @@ function reducer(state: TrackerTableState, action: ActionType): TrackerTableStat
     }
 }
 
-////
+////Component
 export default function TrackerTable() {
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -269,10 +262,9 @@ export default function TrackerTable() {
 
     function addCombatant() {
         let newTrackerTableRowData: TrackerTableRowData[] = [];
-        state.trackerTableRowData.forEach((data: TrackerTableRowData) => newTrackerTableRowData.push(data));
+        state.trackerTableRowData.forEach((data: TrackerTableRowData) => newTrackerTableRowData.push(Object.assign({}, data)));
 
-        let newCharacterData: Character[] = [];
-        state.characterData.forEach((data: Character) => newCharacterData.push(data));
+        let newCharacterData = deepCloneCharacterData(state.characterData);
 
         const newTrackerTableRowDataEntry: TrackerTableRowData = { rowKey: state.rowKeyGenerator, characterKey: state.characterKeyGenerator };
         const newCharacterDataEntry: Character = new Character(state.characterKeyGenerator);
@@ -305,12 +297,13 @@ export default function TrackerTable() {
 
         if (targetRowIndex !== -1) {
             let newTrackerTableRowData: TrackerTableRowData[] = [];
-            let newCharacterData: Character[] = [];
+            let newCharacterData = deepCloneCharacterData(state.characterData);
 
             let targetCharacterKey: number = state.trackerTableRowData[targetRowIndex].characterKey;
+            let targetCharacterIndex: number = newCharacterData.findIndex((data) => data.characterKey === targetCharacterKey);
 
-            state.trackerTableRowData.forEach((data, currentIndex) => { if (currentIndex !== targetRowIndex) newTrackerTableRowData.push(data); });
-            state.characterData.forEach((data) => { if (data.characterKey !== targetCharacterKey) newCharacterData.push(data); });
+            state.trackerTableRowData.forEach((data, currentIndex) => { if (currentIndex !== targetRowIndex) newTrackerTableRowData.push(Object.assign({}, data)); });
+            newCharacterData.splice(targetCharacterIndex, 1);
 
             let action: ActionType = {
                 type: 'removeCombatant',
@@ -328,19 +321,7 @@ export default function TrackerTable() {
         let targetCharacterIndex = state.characterData.findIndex((data) => data.characterKey === targetCharacterKey);
         let targetSubCharacterIndex = state.characterData[targetCharacterIndex].subCharacters.findIndex((data) => data.subCharacterKey === targetSubCharacterKey);
 
-        let newCharacterData: Character[] = [];
-        state.characterData.forEach((data, dataIndex) => {
-            newCharacterData.push(new Character(data.characterKey));
-
-            data.subCharacters.forEach((subCharacterData) => newCharacterData[dataIndex].subCharacters.push(Object.assign({}, subCharacterData)));
-
-            newCharacterData[dataIndex].name = data.name;
-            newCharacterData[dataIndex].init = data.init;
-            newCharacterData[dataIndex].hp = data.hp;
-            newCharacterData[dataIndex].ac = data.ac;
-            newCharacterData[dataIndex].notes = data.notes;
-            newCharacterData[dataIndex].subCharacterKeyGenerator = data.subCharacterKeyGenerator;
-        });
+        let newCharacterData = deepCloneCharacterData(state.characterData);
 
         newCharacterData[targetCharacterIndex].subCharacters.splice(targetSubCharacterIndex, 1);
 
@@ -387,7 +368,7 @@ export default function TrackerTable() {
                 if (rowCharacter.subCharacters.length) {
                     mainEntryProps.rowType = MainEntryRowTypes.GROUP;
 
-                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} />);
+                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} rowNumber={rowKeyGenerator} />);
                     rowKeyGenerator++;
 
                     rowCharacter.subCharacters.forEach((subCharacter) => {
@@ -400,14 +381,14 @@ export default function TrackerTable() {
                                 removeSubCombatant: (targetSubCharacterKey: number) => removeSubCombatant(rowCharacter.characterKey, targetSubCharacterKey)
                         };
 
-                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={subEntryProps} />);
+                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={subEntryProps} rowNumber={rowKeyGenerator} />);
                         rowKeyGenerator++;
                     
                      });
                 }
                 else {
                     
-                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} />);
+                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} rowNumber={rowKeyGenerator}/>);
 
                     rowKeyGenerator++;
                 }
@@ -422,7 +403,7 @@ export default function TrackerTable() {
         <div id='trackerTable'>
             <TrackerTableLabelRow />
             {generateTrackerTableRows()}
-            <div style={{ width: '100px', margin: '50px auto', border: '1px solid black' }} onClick={addCombatant}>add combatant</div>
+            <img src={AddEntryButton} onClick={addCombatant} style={{ height: '28px', margin: 'auto', marginTop: '40px', display: 'block', cursor: 'pointer' }}/>
         </div>
     );
 };
