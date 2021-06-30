@@ -1,10 +1,13 @@
-import React from 'react';
+import { useState } from 'react';
 import { MainEntryProps } from './TrackerTableRow'
-import addGroupEntryButton from './addGroupEntryButton.svg';
+import addGroupEntryButton from './addGroupEntryButtonLight.svg';
+import highlightAddGroupEntryButton from './addGroupEntryButton.svg';
 
 
 export default function GroupEntry( props: MainEntryProps) {
     let { characterData, changeCharacter, sortCombatants, deleteRow, addSubCombatant } = props.entryProps;
+
+    const [addEntryButton, changeAddEntryButton] = useState(addGroupEntryButton);
 
     return (
 
@@ -23,7 +26,8 @@ export default function GroupEntry( props: MainEntryProps) {
 
             <div className='characterEntryButtons'>
                 <div className='removeEntryButton' onClick={deleteRow} />
-                <img src={addGroupEntryButton} onClick={() => addSubCombatant()} />
+                <img src={addEntryButton} onClick={() => addSubCombatant()} alt='Button for adding sub-entries'
+                    onMouseOver={() => changeAddEntryButton(highlightAddGroupEntryButton)} onMouseLeave={() => changeAddEntryButton(addGroupEntryButton)} />
             </div>
         </div>
     );

@@ -1,11 +1,14 @@
-import React from 'react';
+import { useState } from 'react';
 import { MainEntryProps } from './TrackerTableRow';
 import addGroupEntryButton from './addGroupEntryButtonLight.svg';
+import highlightAddGroupEntryButton from './addGroupEntryButton.svg';
 
 
 export default function CharacterEntry(props: MainEntryProps) {
 
-    let { characterData, changeCharacter, deleteRow, sortCombatants, addSubCombatant } = props.entryProps;
+    let { characterData, changeCharacter, deleteRow, sortCombatants, addSubCombatant, /*addCombatant*/ } = props.entryProps;
+
+    const [addEntryButton, changeAddEntryButton] = useState(addGroupEntryButton); 
 
     let nameStyle = {
         textDecoration: 'initial',
@@ -20,8 +23,8 @@ export default function CharacterEntry(props: MainEntryProps) {
         
         <div className='characterEntry'>
             <input type='text' className='characterName' aria-label='name' name='name' value={characterData.name}
-                onChange={(e) => changeCharacter('name', e.currentTarget.value)} style={nameStyle}/> 
-                
+                onChange={(e) => changeCharacter('name', e.currentTarget.value)} style={nameStyle}
+                /*onKeyDown={(e) => { if (e.key === "Enter") addCombatant() }}*/ /> 
 
             <input type='text' className='characterNumber' aria-label='init' name='init' value={characterData.init}
                 onChange={(e) => changeCharacter('init', e.currentTarget.value)} onBlur={sortCombatants} />
@@ -37,7 +40,8 @@ export default function CharacterEntry(props: MainEntryProps) {
 
             <div className='characterEntryButtons'>
                 <div className='removeEntryButton' onClick={deleteRow} />
-                <img src={addGroupEntryButton} onClick={addSubCombatant}/>
+                <img src={addEntryButton} alt='Button for adding sub-entries.' onClick={addSubCombatant}
+                    onMouseOver={() => changeAddEntryButton(highlightAddGroupEntryButton)} onMouseLeave={() => changeAddEntryButton(addGroupEntryButton)}                />
             </div>
         </div>
     );

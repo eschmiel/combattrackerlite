@@ -3,6 +3,9 @@ import CharacterEntry from './CharacterEntry';
 import Character, { SubCharacter } from './Character';
 import GroupEntry from './GroupEntry';
 import SubCharacterEntry from './SubCharacterEntry';
+import './TrackerTableRow.css';
+import './MainEntryTrackerTableRow.css';
+import './SubEntryTrackerTableRow.css';
 
 export enum MainEntryRowTypes {
     CHARACTER = 'CharacterEntry',
@@ -21,6 +24,7 @@ export interface MainEntryProps {
         deleteRow: () => void;
         sortCombatants: () => void;
         addSubCombatant: () => void;
+        addCombatant: () => void;
     }
 };
 
@@ -42,27 +46,25 @@ interface MainEntryTrackerTableRowProps extends MainEntryProps {
 }
 
 type TrackerTableRowStyle = {
-    backgroundColor: string;
-    width?: string;
-    margin?: string;
+    backgroundColor?: string;
+
 };
 
 export default function TrackerTableRow(props: MainEntryTrackerTableRowProps | SubEntryTrackerTableRowProps) {
 
-    let trackerTableRowStyle: TrackerTableRowStyle = {
-        backgroundColor: '#ffffff',
-    };
 
-    if(props.rowNumber % 2 == 1)
-        trackerTableRowStyle.backgroundColor = '#f1f1f1';
-/*
-    if (props.entryProps.rowType === 'SubCharacterEntry') {
+    let trackerTableRowClass = 'trackerTableRow mainEntry';
+    if (props.entryProps.rowType === 'SubCharacterEntry')
+        trackerTableRowClass = 'trackerTableRow subEntry';
 
-        trackerTableRowStyle.width = '600px';
-        trackerTableRowStyle.margin = 'auto';
-    }*/
+    let trackerTableRowStyle: TrackerTableRowStyle = {};
+
+    if (props.rowNumber % 2 === 0)
+        trackerTableRowStyle.backgroundColor = '#ffffff';
+    
+
     return (
-        <div className='trackerTableRow' style={trackerTableRowStyle}>
+        <div className={trackerTableRowClass} style={trackerTableRowStyle}>
             {    
                 props.entryProps.rowType === 'CharacterEntry' ? <CharacterEntry entryProps={props.entryProps} /> :
                 props.entryProps.rowType === 'GroupEntry' ? <GroupEntry entryProps={props.entryProps} /> :

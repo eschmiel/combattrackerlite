@@ -1,8 +1,9 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow, { MainEntryRowTypes, SubEntryRowTypes } from './TrackerTableRow';
-import Character, { SubCharacter } from './Character';
+import Character from './Character';
 import AddEntryButton from './addGroupEntryButtonLight.svg';
+import HighlightAddEntryButton from './addGroupEntryButton.svg';
 
 export interface TrackerTableRowData {
     rowKey: number;
@@ -159,6 +160,7 @@ function sortCombatants(characterData: Character[], trackerTableRowData: Tracker
 
 ////
 function reducer(state: TrackerTableState, action: ActionType): TrackerTableState {
+
     switch (action.type) {
         case 'changeCharacter': {
             let newCharacterData = changeCharacter(state.characterData, action.payload);
@@ -231,6 +233,8 @@ function reducer(state: TrackerTableState, action: ActionType): TrackerTableStat
 
 ////Component
 export default function TrackerTable() {
+
+    const [addCombatantButton, changeAddCombatantButton] = useState(AddEntryButton);
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -360,7 +364,8 @@ export default function TrackerTable() {
                         changeCharacter: (targetProperty: string, newValue: string | number) =>
                             getNewCharacterData(rowCharacter.characterKey, targetProperty, newValue),
                         sortCombatants: sortCombatants,
-                        addSubCombatant: () => addSubCombatant(rowCharacter.characterKey)
+                        addSubCombatant: () => addSubCombatant(rowCharacter.characterKey),
+                        addCombatant: () => addCombatant()
                     
                 };
 
@@ -368,7 +373,7 @@ export default function TrackerTable() {
                 if (rowCharacter.subCharacters.length) {
                     mainEntryProps.rowType = MainEntryRowTypes.GROUP;
 
-                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} rowNumber={rowKeyGenerator} />);
+                    trackerTableRows.push(<TrackerTableRow key={rowData.rowKey} entryProps={mainEntryProps} rowNumber={rowKeyGenerator} />);
                     rowKeyGenerator++;
 
                     rowCharacter.subCharacters.forEach((subCharacter) => {
@@ -381,14 +386,14 @@ export default function TrackerTable() {
                                 removeSubCombatant: (targetSubCharacterKey: number) => removeSubCombatant(rowCharacter.characterKey, targetSubCharacterKey)
                         };
 
-                        trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={subEntryProps} rowNumber={rowKeyGenerator} />);
+                        trackerTableRows.push(<TrackerTableRow key={rowData.rowKey + (subCharacter.subCharacterKey / 100)} entryProps={subEntryProps} rowNumber={rowKeyGenerator} />);
                         rowKeyGenerator++;
                     
                      });
                 }
                 else {
                     
-                    trackerTableRows.push(<TrackerTableRow key={rowKeyGenerator} entryProps={mainEntryProps} rowNumber={rowKeyGenerator}/>);
+                    trackerTableRows.push(<TrackerTableRow key={rowData.rowKey} entryProps={mainEntryProps} rowNumber={rowKeyGenerator}/>);
 
                     rowKeyGenerator++;
                 }
@@ -403,7 +408,8 @@ export default function TrackerTable() {
         <div id='trackerTable'>
             <TrackerTableLabelRow />
             {generateTrackerTableRows()}
-            <img src={AddEntryButton} onClick={addCombatant} style={{ height: '28px', margin: 'auto', marginTop: '40px', display: 'block', cursor: 'pointer' }}/>
+            <img src={addCombatantButton} onClick={addCombatant} style={{ height: '28px', margin: 'auto', marginTop: '40px', display: 'block', cursor: 'pointer' }} alt='Button for adding new combatant'
+                onMouseOver={() => changeAddCombatantButton(HighlightAddEntryButton)} onMouseLeave={() => changeAddCombatantButton(AddEntryButton)}/>
         </div>
     );
 };
