@@ -1,0 +1,72 @@
+.mainEntry {
+    width: 683px;
+}
+
+.mainEntry:hover {
+    width: 827px;
+}
+
+.mainEntry .characterName {
+    width: 188px;
+    margin-right: 12px;
+}
+
+.mainEntry:hover .characterName {
+    margin-right: 22px;
+}
+
+.mainEntry .characterNumber:nth-child(3) {
+    border: 0px;
+}
+
+.mainEntry .characterNotes {
+    width: 234px;
+}
+
+.mainEntry:hover .characterEntryButtons {
+    float: right;
+    width: 98px;
+    height: 53px;
+    display: inline-block;
+    border-left: 2px solid black;
+    cursor: default;
+    margin-left: 12px;
+    border-right: 0px;
+    transition: width 500ms, height 500ms;
+}
+
+
+.mainEntry:hover .removeEntryButton {
+    width: 28px;
+    height: 9px;
+    border-radius: 5px;
+    border: 2px solid #a9a9a9;
+    margin-left: 12px;
+    margin-bottom: 6px;
+    display: inline-block;
+    cursor: pointer;
+    transition: width 500ms, height 500ms, margin-left 500ms, margin-bottom 500ms, border 50ms;
+}
+
+.mainEntry:hover .removeEntryButton:hover {
+    width: 28px;
+    height: 9px;
+    border-radius: 5px;
+    border: 2px solid black;
+    margin-left: 12px;
+    margin-bottom: 6px;
+    display: inline-block;
+    cursor: pointer;
+    transition: width 500ms, height 500ms, margin-left 500ms, margin-bottom 500ms, border 50ms;
+    }
+
+.mainEntry:hover .groupBlank {
+    height: 53px;
+    text-align: center;
+    border-right: 2px solid black;
+    transition: 500ms;
+}
+
+.mainEntry .groupBlank {
+    border-right: 2px solid black;
+}

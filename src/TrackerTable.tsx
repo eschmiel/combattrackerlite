@@ -2,8 +2,8 @@ import React, { useReducer, useState } from 'react';
 import TrackerTableLabelRow from './TrackerTableLabelRow';
 import TrackerTableRow, { MainEntryRowTypes, SubEntryRowTypes } from './TrackerTableRow';
 import Character from './Character';
-import AddEntryButton from './addGroupEntryButtonLight.svg';
-import HighlightAddEntryButton from './addGroupEntryButton.svg';
+import AddEntryButton from './img/addGroupEntryButtonLight.svg';
+import HighlightAddEntryButton from './img/addGroupEntryButton.svg';
 
 export interface TrackerTableRowData {
     rowKey: number;

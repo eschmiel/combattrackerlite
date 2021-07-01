@@ -1,11 +1,11 @@
 import React from 'react';
-import CharacterEntry from './CharacterEntry';
+import CharacterEntry from './entries/CharacterEntry';
 import Character, { SubCharacter } from './Character';
-import GroupEntry from './GroupEntry';
-import SubCharacterEntry from './SubCharacterEntry';
-import './TrackerTableRow.css';
-import './MainEntryTrackerTableRow.css';
-import './SubEntryTrackerTableRow.css';
+import GroupEntry from './entries/GroupEntry';
+import SubCharacterEntry from './entries/SubCharacterEntry';
+import './css/TrackerTableRow.css';
+import './css/MainEntryTrackerTableRow.css';
+import './css/SubEntryTrackerTableRow.css';
 
 export enum MainEntryRowTypes {
     CHARACTER = 'CharacterEntry',

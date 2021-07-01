@@ -1,5 +1,5 @@
 import React from 'react';
-import combatTrackerLiteLogo from './combatTrackerLiteLogo.svg';
+import combatTrackerLiteLogo from './img/combatTrackerLiteLogo.svg';
 
 export default function Header() {
 

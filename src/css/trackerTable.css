@@ -1,0 +1,39 @@
+#trackerTable {
+    margin: 117px auto;
+    width: 687px;
+}
+
+#trackerTableLabelRow {
+    font: bold 24px arial-black;
+    border: 2px solid black;
+    border-bottom: 3px solid black;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 47px;
+    background-color: #d4d4d4;
+}
+
+#nameLabel {
+    float: left;
+    height: 37px;
+    width: 207px;
+    padding-top: 10px;
+    padding-left: 10px;
+    border-right: 2px solid black;
+}
+
+.numberLabel {
+    float: left;
+    height: 37px;
+    width: 64px;
+    text-align: center;
+    padding-top: 10px;
+    border-right: 2px solid black;
+}
+
+#notesLabel {
+    float: left;
+    height: 37px;
+    padding-top: 10px;
+    padding-left: 10px;
+}
