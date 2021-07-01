@@ -6,7 +6,7 @@ export default function Notepad() {
             <div className='notepadLabel'>
                 <p>Notepad</p>
             </div>
-            <textarea cols={91} rows={14}/>
+            <textarea cols={90} rows={14}/>
         </div>
 
     );
