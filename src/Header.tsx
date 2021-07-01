@@ -6,7 +6,7 @@ export default function Header() {
     return (
         < div id={'header'}> 
             <img src={combatTrackerLiteLogo} alt='Combat Tracker Lite Logo' height='117px' />
-            <a href='https://www.eschmiel.github.io/CombatTrackerLite' >
+            <a href='https://eschmiel.github.io/combatTrackerLite' >
                 <div id='aboutButton'>ABOUT</div>
             </a>
         </div>
